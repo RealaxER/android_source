@@ -7,7 +7,7 @@ cd source
 vim build/target/product/base_vendor.mk
 ##
 PRODUCT_PACKAGES += \
-    Invcase
+    Change
 ##
 
 /*build system and reload Flash Image android and kernel*/
