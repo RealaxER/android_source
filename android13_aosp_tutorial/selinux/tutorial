@@ -1,0 +1,86 @@
+/********************************SELINUX********************************/
+
+/*create new type*/
+vim system/sepolicy/prebuilts/api/33.0/public/hwservice.te
+
+vim system/sepolicy/public/hwservice.te
+##
+type hal_change_hwservice, hwservice_manager_type;
+##
+
+
+/*service context*/
+vim system/sepolicy/prebuilts/api/33.0/private/hwservice_contexts
+vim system/sepolicy/private/hwservice_contexts
+
+##
+android.hardware.change::IChange                         u:object_r:hal_change_hwservice:s0
+##
+
+/*create attributes*/
+
+vim system/sepolicy/prebuilts/api/32.0/public/attributes
+vim system/sepolicy/public/attributes
+##
+hal_attribute(change);
+##
+
+/*create domain*/
+vim system/sepolicy/vendor/hal_change_service.te
+
+##
+type hal_change_service, domain;
+hal_server_domain(hal_change_service, hal_change)
+type hal_change_service_exec, exec_type, vendor_file_type, vendor_file_type, file_type;
+init_daemon_domain(hal_change_service)
+##
+
+
+/*link binder*/
+vim system/sepolicy/prebuilts/api/33.0/public/hal_change.te
+
+vim system/sepolicy/public/hal_change.te
+##
+binder_call(hal_change_client, hal_change_server)
+binder_call(hal_change_server, hal_change_client)
+hal_attribute_hwservice(hal_change, hal_change_hwservice)
+##
+
+/*set cilent domain*/
+vim system/sepolicy/prebuilts/api/33.0/private/system_server.te
+
+vim system/sepolicy/private/system_server.te
+
+##
+hal_client_domain(system_server, hal_change)
+##
+
+/*ignore api*/
+vim system/sepolicy/prebuilts/api/33.0/private/compat/32.0/32.0.ignore.cil
+
+vim system/sepolicy/private/compat/32.0/32.0.ignore.cil
+##
+(type new_objects)
+(typeattribute new_objects)
+(typeattributeset new_objects
+    ( new_objects
+        hal_change_hwservice
+    )
+)
+##
+
+/*add path*/
+vim system/sepolicy/vendor/file_contexts
+
+##
+/(vendor|system/vendor)/bin/hw/android\.hardware\.change-service u:object_r:hal_change_service_exec:s0
+##
+
+
+/*initialization on boot*/
+vim device/brcm/rpi4/ramdisk/init.rpi4.rc
+##
+on boot
+    chown system system /dev/change
+    chmod 0600 /dev/change
+##

@@ -1,0 +1,28 @@
+/********************************APP TEST********************************/
+
+
+/*add app in the vendor*/
+cd ..
+cd source
+vim build/target/product/base_vendor.mk
+##
+PRODUCT_PACKAGES += \
+    Invcase
+##
+
+/*build system and reload Flash Image android and kernel*/
+m all -j$(nproc)
+
+## reload flash image and kernel 
+
+/*add package app Change*/
+cd packages/apps
+git clone https://github.com/RealaxER/Change
+
+/*build app*/
+cd - 
+m all -j$(nproc)
+
+/*adb install app*/
+
+adb install out/target/product/rpi4/system/app/Change/Change.apk

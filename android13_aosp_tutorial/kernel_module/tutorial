@@ -1,0 +1,260 @@
+/********************************KERNEL MODULE BUILD IN DRIVER********************************/
+
+/*implement driver change*/
+
+cd ..
+cd kernel/common/drivers
+mkdir -p change
+
+/*implement makefile*/
+vim change/Makefile
+
+##
+obj-$(CONFIG_CHAGE) += change.o
+##
+
+/*implement Kconfig*/
+vim change/Kconfig
+
+##
+# Device Change configuration
+# By BHien 
+menuconfig CHANGE
+    tristate "Change String"
+    default y
+    help
+      Say Y to include this module
+      Say N will not build this module
+      Say M to build this module but not include to kernel yet
+##
+
+/*add driver in Makfile drivers*/
+vim Makefile 
+##
+obj-$(CONFIG_CHANGE) += change/
+##
+
+
+/*add driver in Kconfig drivers*/
+vim Kconfig
+##
+source "drivers/change/Kconfig"
+##
+
+/*implement driver kernel module*/
+
+vim change/change.c
+
+##
+#/kernel/common/drivers/change/change.c
+
+/***************************************************************************//**
+*  \file       change.c
+*
+*  \details    Simple GPIO driver explanation
+*
+*  \author     Bui Dinh Hien
+*
+*  \Tested with Linux Android RPI4 
+*
+*******************************************************************************/
+#include <linux/kernel.h>
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/kdev_t.h>
+#include <linux/fs.h>
+#include <linux/cdev.h>
+#include <linux/device.h>
+#include <linux/delay.h>
+#include <linux/uaccess.h>  //copy_to/from_user()
+#include <linux/gpio.h>     //GPIO
+#include <linux/err.h>
+//LED is connected to this GPIO
+#define GPIO_21 (21)
+#define MAX_SIZE 255
+dev_t dev = 0;
+static struct class *dev_class;
+static struct cdev change_cdev;
+ char __buffer[MAX_SIZE]= "ON";
+static int __init change_driver_init(void);
+static void __exit change_driver_exit(void);
+ 
+ 
+/*************** Driver functions **********************/
+static int change_open(struct inode *inode, struct file *file);
+static int change_release(struct inode *inode, struct file *file);
+static ssize_t change_read(struct file *filp, 
+                char __user *buf, size_t len,loff_t * off);
+static ssize_t change_write(struct file *filp, 
+                const char *buf, size_t len, loff_t * off);
+/******************************************************/
+int status_led = 0;
+//File operation structure 
+static struct file_operations fops =
+{
+  .owner          = THIS_MODULE,
+  .read           = change_read,
+  .write          = change_write,
+  .open           = change_open,
+  .release        = change_release,
+};
+
+/*
+** This function will be called when we open the Device file
+*/ 
+static int change_open(struct inode *inode, struct file *file)
+{
+  pr_info("Device File Opened...!!!\n");
+  return 0;
+}
+
+/*
+** This function will be called when we close the Device file
+*/
+static int change_release(struct inode *inode, struct file *file)
+{
+  pr_info("Device File Closed...!!!\n");
+  return 0;
+}
+
+/*
+** This function will be called when we read the Device file
+*/ 
+static ssize_t change_read(struct file *filp, 
+                char __user *buf, size_t len, loff_t *off)
+{
+  ssize_t remain = MAX_SIZE - *off;
+  ssize_t count = len > remain ? remain : len;
+  if(remain <= 0) return 0;
+  pr_info("Device File read... count : %d,remain : %d\n", count,remain);
+  if (copy_to_user(buf, __buffer +*off, count)) {
+        printk("Can not copy to user\n");
+        return -EFAULT;
+  }
+  *off += count;
+  return count;
+}
+/*
+** This function will be called when we write the Device file
+*/ 
+static ssize_t change_write(struct file *filp, 
+                const char __user *buf, size_t len, loff_t *off)
+{
+  uint8_t rec_buf[10] = {0};
+  
+  if( copy_from_user( rec_buf, buf, len ) > 0) {
+    pr_err("ERROR: Not all the bytes have been copied from user\n");
+  }
+  
+  pr_info("Write Function : GPIO_21 Set = %c\n", rec_buf[0]);
+  
+  if (rec_buf[0]=='1') {
+    //set the GPIO value to HIGH
+    gpio_set_value(GPIO_21, 1);
+    strcpy(__buffer,"ON");
+  } else if (rec_buf[0]=='0') {
+    //set the GPIO value to LOW
+    gpio_set_value(GPIO_21, 0);
+    strcpy(__buffer,"OFF");
+  } else {
+    pr_err("Unknown command : Please provide either 1 or 0 \n");
+  }
+  
+  return len;
+}
+
+/*
+** Module Init function
+*/ 
+static int __init change_driver_init(void)
+{
+  /*Allocating Major number*/
+  if((alloc_chrdev_region(&dev, 0, 1, "change_Dev")) <0){
+    pr_err("Cannot allocate major number\n");
+    goto r_unreg;
+  }
+  pr_info("Major = %d Minor = %d \n",MAJOR(dev), MINOR(dev));
+ 
+  /*Creating cdev structure*/
+  cdev_init(&change_cdev,&fops);
+ 
+  /*Adding character device to the system*/
+  if((cdev_add(&change_cdev,dev,1)) < 0){
+    pr_err("Cannot add the device to the system\n");
+    goto r_del;
+  }
+ 
+  /*Creating struct class*/
+  if(IS_ERR(dev_class = class_create(THIS_MODULE,"change_class"))){
+    pr_err("Cannot create the struct class\n");
+    goto r_class;
+  }
+ 
+  /*Creating device*/
+  if(IS_ERR(device_create(dev_class,NULL,dev,NULL,"change"))){
+    pr_err( "Cannot create the Device \n");
+    goto r_device;
+  }
+  
+  //Checking the GPIO is valid or not
+  if(gpio_is_valid(GPIO_21) == false){
+    pr_err("GPIO %d is not valid\n", GPIO_21);
+    goto r_device;
+  }
+  
+  //Requesting the GPIO
+  if(gpio_request(GPIO_21,"GPIO_21") < 0){
+    pr_err("ERROR: GPIO %d request\n", GPIO_21);
+    goto r_gpio;
+  }
+  
+  //configure the GPIO as output
+  gpio_direction_output(GPIO_21, 0);
+  
+  gpio_export(GPIO_21, false);
+  
+  pr_info("Device Driver Insert...Done!!!\n");
+  return 0;
+ 
+r_gpio:
+  gpio_free(GPIO_21);
+r_device:
+  device_destroy(dev_class,dev);
+r_class:
+  class_destroy(dev_class);
+r_del:
+  cdev_del(&change_cdev);
+r_unreg:
+  unregister_chrdev_region(dev,1);
+  
+  return -1;
+}
+
+/*
+** Module exit function
+*/ 
+static void __exit change_driver_exit(void)
+{
+  gpio_unexport(GPIO_21);
+  gpio_free(GPIO_21);
+  device_destroy(dev_class,dev);
+  class_destroy(dev_class);
+  cdev_del(&change_cdev);
+  unregister_chrdev_region(dev, 1);
+  pr_info("Device Driver Remove...Done!!\n");
+}
+ 
+module_init(change_driver_init);
+module_exit(change_driver_exit);
+ 
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Bui Dinh Hien buihien29112002@gmail.com");
+MODULE_DESCRIPTION("A simple device driver - GPIO Driver");
+##
+
+
+/*build module*/
+
+cd .. && cd ..
+
+BUILD_CONFIG=common/build.config.rpi4 LTO=none FAST_BUILD=1 SKIP_MRPROPER=1 SKIP_DEFCONFIG=1 build/config.sh
