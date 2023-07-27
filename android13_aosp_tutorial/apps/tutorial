@@ -21,8 +21,12 @@ git clone https://github.com/RealaxER/Change
 
 /*build app*/
 cd - 
+source build/event_setup.sh
+lunch aosp_rpi4-userdebug
 m all -j$(nproc)
 
 /*adb install app*/
 
 adb install out/target/product/rpi4/system/app/Change/Change.apk
+
+adb reboot
