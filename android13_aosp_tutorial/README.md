@@ -1,17 +1,19 @@
-Follow each of the following instructions
+### Follow each of the following instructions
 
-1.build android
+***
 
-2.Flash image
+1. Build android
 
-3.adb
+2. Flash image
 
-4.aidl for hals
+3. Adb
 
-5.selinux
+4. Aidl for hals
 
-6.kernel module
+5. Selinux
 
-7.Reload flash image
+6. Kernel module
 
-8.app test
+7. Reload flash image
+
+8. App test
