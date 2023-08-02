@@ -32,6 +32,11 @@ adb version
 sudo adb start-server
 ```
 
+### RESTART SERVER IF ERROR
+```
+sudo adb kill-server
+sudo adb start-server
+```
 ### Adb cmd
 ```
 adb devices 
