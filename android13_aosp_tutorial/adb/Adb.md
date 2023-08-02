@@ -37,7 +37,7 @@ sudo adb start-server
 sudo adb kill-server
 sudo adb start-server
 ```
-### Adb cmd
+### ADB CMD
 ```
 adb devices 
 adb shell 
