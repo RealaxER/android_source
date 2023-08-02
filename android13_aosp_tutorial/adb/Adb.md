@@ -1,5 +1,16 @@
 # ADB ENABLE FOR RPI4
 
+### INSTALL ADB AND FASTBOOT
+```
+sudo apt update
+sudo apt install android-tools-adb
+sudo apt install android-tools-fastboot
+```
+
+### CHECK VERSION
+```
+adb version
+```
 ### Enable
 
 1.Sau khi boot được android lên các bạn chọn vào "Setting" 
@@ -16,6 +27,10 @@
 
 7.Reboot lại rpi4
 
+### START SERVER 
+```
+sudo adb start-server
+```
 
 ### Adb cmd
 ```
