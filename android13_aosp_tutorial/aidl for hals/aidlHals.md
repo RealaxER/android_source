@@ -313,3 +313,11 @@ nano build/target/product/base_vendor.mk
 PRODUCT_PACKAGES += \
     android.hardware.change-service
 ```
+## Build Hals and Hals Service 
+```
+source build/envsetup.sh 
+lunch aosp_rpi4-userdebug
+m all -j$(nproc)
+```
+
+
