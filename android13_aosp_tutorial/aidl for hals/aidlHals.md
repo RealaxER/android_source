@@ -261,7 +261,9 @@ service android.hardware.change-service /vendor/bin/hw/android.hardware.change-s
 
 
 ### Implement device manifest
+```
 nano android.hardware.change-service.xml
+```
 ```
 <manifest version="1.0" type="device">
     <hal format="aidl">
