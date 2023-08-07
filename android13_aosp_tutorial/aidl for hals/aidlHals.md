@@ -60,6 +60,11 @@ nano build/make/target/product/base_vendor.mk
 PRODUCT_PACKAGES += \
     android.hardware.change \
 ```
+### CHECK Libaries Backend 
+```
+cd out/soong/.intermediates/hardware/interfaces/change/aidl
+find .
+```
 
 ***
 ## 3. Implement HALs
