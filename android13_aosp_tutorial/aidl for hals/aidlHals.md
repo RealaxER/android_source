@@ -64,6 +64,7 @@ PRODUCT_PACKAGES += \
 ```
 cd out/soong/.intermediates/hardware/interfaces/change/aidl
 find .
+cd -
 ```
 
 ***
