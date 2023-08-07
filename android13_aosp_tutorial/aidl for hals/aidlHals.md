@@ -62,7 +62,7 @@ PRODUCT_PACKAGES += \
 ```
 
 ***
-## 2. Implement HALs
+## 3. Implement HALs
 ### Write HALs 
 ```
 cd hardware/interfaces/change/aidl
@@ -145,7 +145,7 @@ class Change: public BnChange{
 }  // namespace aidl
 ```
 ***
-## 3. Implement service HALs
+## 4. Implement service HALs
 ### Write service file
 ```
 nano service.cpp
@@ -205,7 +205,7 @@ int main() {
 }
 ```
 
-## 4. Implement configuration services HALs
+## 5. Implement configuration services HALs
 ```
 nano Android.bp
 ```
