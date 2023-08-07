@@ -248,7 +248,9 @@ cc_binary {
 
 
 ### Implement rc init
-
+```
+nano android.hardware.change-service.rc
+```
 ```
 service android.hardware.change-service /vendor/bin/hw/android.hardware.change-service
         interface aidl android.hardware.change.IChange/default
