@@ -116,6 +116,7 @@ cd hello
 ### IMPLEMENT SOURCE 
 ```
 code hello.c
+code Makefile
 ```
 ### IMPLEMENT MAKEFILE
 ```
