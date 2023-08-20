@@ -29,7 +29,6 @@ aidl_interface {
     name: "android.hardware.hello",
     vendor: true,
     srcs: ["android/hardware/hello/*.aidl"],
-    stability: "vintf",
     owner: "BHien",
     backend: {
         cpp: {
