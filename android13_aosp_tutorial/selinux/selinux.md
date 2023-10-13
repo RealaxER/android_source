@@ -59,6 +59,23 @@ hal_server_domain(hal_change_service, hal_change)
 type hal_change_service_exec, exec_type, vendor_file_type, vendor_file_type, file_type;
 init_daemon_domain(hal_change_service)
 ```
++ domain: Loại dành riêng cho các tiến trình (processes), đại diện cho phạm vi và quyền của các tiến trình trong hệ thống.
+
++ fs_type: Đại diện cho các loại file system (hệ thống tập tin), đặc biệt là loại của hệ thống tập tin được sử dụng trên máy tính.
+
++ file_type: Được sử dụng để phân loại các tập tin (files) dựa trên loại, thường được sử dụng trong việc quản lý quyền truy cập đối với các tập tin.
+
++ exec_type: Đại diện cho các loại tệp thực thi (executable files), thường được sử dụng để kiểm soát quyền truy cập vào các tệp thực thi.
+
++ data_file_type: Được sử dụng để định rõ các loại tệp dữ liệu (data files), thường được sử dụng trong việc quản lý quyền truy cập vào các tệp dữ liệu cụ thể.
+
++ core_data_file_type: Tương tự như "data_file_type", nhưng có thể áp dụng đặc biệt cho các tệp dữ liệu trong thư mục "/data" và không thuộc "/data/vendor".
+
++ vendor_file_type: Đại diện cho các tệp trong thư mục "/vendor", có thể áp dụng kiểm soát truy cập đặc biệt cho các tệp trong thư mục này.
+
++ proc_type: Đại diện cho các loại tệp trong hệ thống tệp procfs, thường được sử dụng để kiểm soát truy cập vào thông tin liên quan đến các tiến trình trong hệ thống.
+
++ sysfs_type: Đại diện cho các loại tệp trong hệ thống sysfs, thường được sử dụng để kiểm soát truy cập vào thông tin liên quan đến các thiết bị và tài nguyên hệ thống.
 
 
 ### Link binder
