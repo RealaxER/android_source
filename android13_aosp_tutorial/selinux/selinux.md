@@ -1,50 +1,61 @@
 # SELINUX
-Note that the 2 copied files must be in the same position and the same, the 2 files must be similar in all points
 ### Create new type
 ```
-nano system/sepolicy/prebuilts/api/33.0/public/hwservice.te
+code system/sepolicy/prebuilts/api/33.0/public/hwservice.te
 ```
 ```
-nano system/sepolicy/public/hwservice.te
+code system/sepolicy/public/hwservice.te
 ```
-hwservice.te and hwservice.te
+Thêm type mới sẽ có những thuộc tính sau để gán cho type mới 
+
++ hwservice_manager_type : mặc định
++ coredomain_hwservice : sẽ có độ tin cậy cao hơn hwservice thông thường từ vendor
++ protected_hwservice : bảo vệ HAL từ chối các ứng dụng không đáng tin cậy truy cập 
+
 ```
 type hal_change_hwservice, hwservice_manager_type;
 ```
 
-
-### Service context
+### Set service context interface:
 ```
-nano system/sepolicy/prebuilts/api/33.0/private/hwservice_contexts
+code system/sepolicy/prebuilts/api/33.0/private/hwservice_contexts
 ```
 ```
-nano system/sepolicy/private/hwservice_contexts
+code system/sepolicy/private/hwservice_contexts
 ```
-copy it 
+copy
 ```
 android.hardware.change::IChange                         u:object_r:hal_change_hwservice:s0
 ```
 
 ### Create attributes
 ```
-nano system/sepolicy/prebuilts/api/32.0/public/attributes
+code system/sepolicy/prebuilts/api/32.0/public/attributes
 ```
 ```
-nano system/sepolicy/public/attributes
+code system/sepolicy/public/attributes
 ```
 copy it 
 ```
 hal_attribute(change);
 ```
+Dùng để define 
++ hal_change
++ hal_change_client
++ hal_change_server
+
 
 ### Create domain
 ```
-nano system/sepolicy/vendor/hal_change_service.te
+code system/sepolicy/vendor/hal_change_service.te
 ```
 copy it
 ```
 type hal_change_service, domain;
+
+#ha_change_service là sever của HAL_Change
 hal_server_domain(hal_change_service, hal_change)
+# tạo 
 type hal_change_service_exec, exec_type, vendor_file_type, vendor_file_type, file_type;
 init_daemon_domain(hal_change_service)
 ```
@@ -52,51 +63,35 @@ init_daemon_domain(hal_change_service)
 
 ### Link binder
 ```
-nano system/sepolicy/prebuilts/api/33.0/public/hal_change.te
+code system/sepolicy/prebuilts/api/33.0/public/hal_change.te
 ```
 ```
-nano system/sepolicy/public/hal_change.te
+code system/sepolicy/public/hal_change.te
 ```
 copy it 
 ```
 binder_call(hal_change_client, hal_change_server)
 binder_call(hal_change_server, hal_change_client)
-hal_attribute_hwservice(hal_change, hal_change_hwservice)
+# Liên kết hal với aidl hal
+hal_attribute_hwservice(hal_change, hal_change_hwservice) 
 ```
 
 ### Set cilent domain
 ```
-nano system/sepolicy/prebuilts/api/33.0/private/system_server.te
+code system/sepolicy/prebuilts/api/33.0/private/system_server.te
 ```
 ```
-nano system/sepolicy/private/system_server.te
+code system/sepolicy/private/system_server.te
 ```
 copy it 
 ```
+#system sever là client của HAL_Change
 hal_client_domain(system_server, hal_change)
-```
-
-### Ignore lower api
-```
-nano system/sepolicy/prebuilts/api/33.0/private/compat/32.0/32.0.ignore.cil
-```
-```
-nano system/sepolicy/private/compat/32.0/32.0.ignore.cil
-```
-copy it 
-```
-(type new_objects)
-(typeattribute new_objects)
-(typeattributeset new_objects
-    ( new_objects
-        hal_change_hwservice
-    )
-)
 ```
 
 ### Add path
 ```
-nano system/sepolicy/vendor/file_contexts
+code system/sepolicy/vendor/file_contexts
 ```
 copy it
 ```
@@ -105,7 +100,7 @@ copy it
 
 ### Initialization on boot
 ```
-nano device/brcm/rpi4/ramdisk/init.rpi4.rc
+code device/brcm/rpi4/ramdisk/init.rpi4.rc
 ```
 copy it
 ```
